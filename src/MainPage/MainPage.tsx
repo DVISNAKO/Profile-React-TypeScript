@@ -1,14 +1,15 @@
 import React, { ChangeEvent, FormEvent, useState, FC } from "react";
 import "./Main.Page.css";
-import { GrEdit } from "react-icons/gr";
 import { IoAddCircleOutline } from "react-icons/io5";
-import SinglePhoto from "../SinglePhoto/SinglePhoto";
 import Photo from "../models/Photo";
 import DisplayPhoto from "../DisplayPhoto/DisplayPhoto";
+import EditPhoto from "../EditPhoto/EditPhoto";
 
 interface AddPhotoProps {
-    addPhoto: (newPhoto: Photo) => void;
-    photosList: Photo[]
+  addPhoto: (newPhoto: Photo) => void;
+  photosList: Photo[];
+  updatePhoto: (newPhoto: Photo) => void;
+  deletePhoto: (id: number) => void;
 }
 
 const initialState = {
@@ -17,39 +18,51 @@ const initialState = {
   img: "",
 };
 
-const MainPage: FC<AddPhotoProps> = ({addPhoto, photosList}) => {
+const MainPage: FC<AddPhotoProps> = ({
+  addPhoto,
+  photosList,
+  updatePhoto,
+  deletePhoto,
+}) => {
   const [newPhoto, setNewPhoto] = useState<{
     photoName: string;
     description: string;
     img: string;
   }>(initialState);
 
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewPhoto({
-        ...newPhoto,
-        [name]: value,
-      });
+      ...newPhoto,
+      [name]: value,
+    });
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { photoName, description, img } = newPhoto;
     if (photoName && description && img) {
-        addPhoto({
+      addPhoto({
         photoName,
         img,
         description,
         id: Date.now(),
-      });  console.log(newPhoto);
+      });
+      console.log(newPhoto);
       setNewPhoto(initialState);
     }
   };
 
+  const handleToogle = (index: number | null) => {
+    setEditIndex(index);
+  };
 
   return (
     <div className="mainBox">
       <div className="form__wrap">
+        {!editIndex ? (
           <form onSubmit={handleSubmit}>
             <div className="form__box">
               <h2>Add new photo</h2>
@@ -79,43 +92,24 @@ const MainPage: FC<AddPhotoProps> = ({addPhoto, photosList}) => {
               </button>
             </div>
           </form>
+        ) : null}
 
-        {/* {edit ? (
-          <form onSubmit={() => {}}>
-            <div className="form__box">
-              <h2>Change photo</h2>
-              <input
-                name="photoName"
-                type="text"
-                onChange={() => {}}
-                // value={}
-                placeholder="photo name"
-              />
-              <input
-                name="description"
-                type="text"
-                onChange={() => {}}
-                placeholder="photo description"
-                // value={}
-              />
-              <input
-                name="img"
-                type="text"
-                onChange={() => {}}
-                placeholder="image"
-                // value={}
-              />
-              <button style={{ background: "grey" }}>
-                Edit Photo <GrEdit />
-              </button>
-            </div>
-          </form>
-        ) : null} */}
+        {editIndex ? (
+          <EditPhoto
+            data={photosList[editIndex]}
+            updatePhoto={updatePhoto}
+            handleToogle={() => setEditIndex(null)}
+          />
+        ) : null}
       </div>
 
       <h2>Galery</h2>
       <div className="photo__block">
-        <DisplayPhoto photosList={photosList}/>
+        <DisplayPhoto
+          deletePhoto={deletePhoto}
+          photosList={photosList}
+          handleToogle={handleToogle}
+        />
       </div>
     </div>
   );

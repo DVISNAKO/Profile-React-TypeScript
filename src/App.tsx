@@ -1,5 +1,4 @@
 import React, {FC, useState} from 'react';
-import logo from './logo.svg';
 import './App.css';
 import MainPage from './MainPage/MainPage';
 import Photo from './models/Photo';
@@ -11,10 +10,22 @@ const App: FC = () => {
     setPhotosList([...photosList, newPhoto]);
   };
 
+  const updatePhoto = (newPhoto: Photo) => {
+    setPhotosList(photosList.map((photo) => 
+    (photo.id === newPhoto.id ? newPhoto : photo)))
+  }
+
+  const deletePhoto = (id: number) => {
+    const newPhotosList = photosList.filter(photo => photo.id !== id);
+    setPhotosList(newPhotosList);
+  }
+  
   return (
     <div className="App">
-      <MainPage 
+      <MainPage
+      updatePhoto={updatePhoto}
       addPhoto={addPhoto}
+      deletePhoto={deletePhoto}
       photosList={photosList} />
     </div>
   );
